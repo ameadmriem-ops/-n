@@ -24,6 +24,8 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
+import androidx.core.content.FileProvider
+import java.io.File
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -221,6 +223,7 @@ class MainActivity : ComponentActivity() {
                     val token = task.result
                     Log.d(FCM_TAG, "FCM Device Registration Token: $token")
                     MyFirebaseMessagingService.saveToken(this, token)
+                    syncTokenToWebView(token)
                 } else {
                     Log.w(FCM_TAG, "Fetching FCM registration token failed", task.exception)
                 }
@@ -234,6 +237,15 @@ class MainActivity : ComponentActivity() {
             FirebaseMessaging.getInstance().subscribeToTopic("anime_updates")
         } catch (e: Exception) {
             Log.e(FCM_TAG, "Error initializing FCM: ${e.message}", e)
+        }
+    }
+
+    fun syncTokenToWebView(token: String) {
+        if (token.isBlank()) return
+        val escaped = token.replace("'", "\\'")
+        val script = "if(window.registerDeviceToken){window.registerDeviceToken('$escaped');}"
+        webView.post {
+            webView.evaluateJavascript(script, null)
         }
     }
 
@@ -372,6 +384,10 @@ class MainActivity : ComponentActivity() {
                     super.onPageFinished(view, url)
                     applyImmersiveFullScreen()
                     isWebViewLoaded = true
+                    val savedToken = MyFirebaseMessagingService.getSavedToken(this@MainActivity)
+                    if (savedToken.isNotBlank()) {
+                        syncTokenToWebView(savedToken)
+                    }
                     pendingFcmNotification?.let { navData ->
                         dispatchFcmNavigation(navData)
                         pendingFcmNotification = null
@@ -1092,6 +1108,14 @@ class MainActivity : ComponentActivity() {
         }
 
         @JavascriptInterface
+        fun syncDeviceToken() {
+            val token = MyFirebaseMessagingService.getSavedToken(activity)
+            if (token.isNotBlank()) {
+                activity.syncTokenToWebView(token)
+            }
+        }
+
+        @JavascriptInterface
         fun copyFcmTokenToClipboard() {
             activity.runOnUiThread {
                 val token = MyFirebaseMessagingService.getSavedToken(activity)
@@ -1145,6 +1169,105 @@ class MainActivity : ComponentActivity() {
                     contentTitle = contentTitle
                 )
             }
+        }
+
+        @JavascriptInterface
+        fun getAppVersionName(): String {
+            return try {
+                val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
+                pInfo.versionName ?: "1.0"
+            } catch (e: Exception) {
+                "1.0"
+            }
+        }
+
+        @JavascriptInterface
+        fun isNotificationsEnabled(): Boolean {
+            return MyFirebaseMessagingService.areNotificationsEnabled(activity)
+        }
+
+        @JavascriptInterface
+        fun setNotificationsEnabled(enabled: Boolean) {
+            activity.runOnUiThread {
+                MyFirebaseMessagingService.setNotificationsEnabled(activity, enabled)
+                if (enabled) {
+                    activity.requestNotificationPermission()
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun shareAppApkOrLink(fallbackUrl: String): Boolean {
+            activity.runOnUiThread {
+                try {
+                    // 1. Try to find actual APK on device (installed package sourceDir)
+                    var apkFile: File? = null
+                    try {
+                        val appInfo = activity.applicationInfo
+                        val sourceDir = appInfo.sourceDir
+                        if (!sourceDir.isNullOrBlank()) {
+                            val file = File(sourceDir)
+                            if (file.exists() && file.canRead()) {
+                                apkFile = file
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not access sourceDir APK: ${e.message}")
+                    }
+
+                    // 2. Fallback check inside project / cache if available
+                    if (apkFile == null) {
+                        val candidates = listOf(
+                            File(activity.filesDir, "BLACK_ANIME.apk"),
+                            File(activity.cacheDir, "BLACK_ANIME.apk")
+                        )
+                        apkFile = candidates.firstOrNull { it.exists() && it.canRead() }
+                    }
+
+                    if (apkFile != null) {
+                        val authority = "${activity.packageName}.fileprovider"
+                        val contentUri: Uri = FileProvider.getUriForFile(activity, authority, apkFile)
+
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/vnd.android.package-archive"
+                            putExtra(Intent.EXTRA_STREAM, contentUri)
+                            putExtra(Intent.EXTRA_SUBJECT, "تطبيق BLACK ANIME")
+                            val textBody = if (fallbackUrl.isNotBlank()) {
+                                "حمل تطبيق BLACK ANIME لمشاهدة الأفلام والمسلسلات والأنمي:\n$fallbackUrl"
+                            } else {
+                                "تطبيق BLACK ANIME لمشاهدة الأنمي والأفلام والمسلسلات"
+                            }
+                            putExtra(Intent.EXTRA_TEXT, textBody)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+
+                        val chooser = Intent.createChooser(shareIntent, "مشاركة تطبيق BLACK ANIME")
+                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        activity.startActivity(chooser)
+                    } else {
+                        // 3. If APK is not accessible on this device, share official download link if available
+                        val validUrl = fallbackUrl.trim()
+                        if (validUrl.isNotBlank() && (validUrl.startsWith("http://") || validUrl.startsWith("https://"))) {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "تطبيق BLACK ANIME")
+                                putExtra(Intent.EXTRA_TEXT, "حمل تطبيق BLACK ANIME لمشاهدة الأفلام والمسلسلات والأنمي عبر الرابط الرسمي:\n$validUrl")
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            val chooser = Intent.createChooser(shareIntent, "مشاركة رابط تطبيق BLACK ANIME")
+                            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            activity.startActivity(chooser)
+                        } else {
+                            Toast.makeText(activity, "ملف التثبيت ورابط المشاركة غير متوفرين حالياً على هذا الجهاز", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error sharing app APK: ${e.message}", e)
+                    Toast.makeText(activity, "تعذر مشاركة ملف التطبيق: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            return true
         }
 
         fun preloadRewardedAd(adUnitId: String) {

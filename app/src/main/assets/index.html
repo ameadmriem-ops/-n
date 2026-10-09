@@ -13,9 +13,11 @@ body{background:#000;color:#fff;font-family:Arial,sans-serif;-webkit-tap-highlig
 .hero{margin-top:55px;height:200px;background:linear-gradient(to bottom,rgba(0,0,0,.2),#000),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80') center/cover;display:flex;justify-content:center;align-items:center}
 .hero h1{font-size:38px;font-weight:900}
 .movies-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:16px 14px;justify-items:center}
-.movie-card{text-align:center;position:relative;background:#111;border-radius:16px;padding:10px;overflow:hidden;width:100%;max-width:170px;min-width:0}
-.poster{width:140px;height:140px;object-fit:contain;background:#1e1e1e;border-radius:14px;display:block;border:1px solid #222;margin:0 auto}
-.favorite-btn{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;z-index:2;cursor:pointer}
+.movie-card{text-align:center;position:relative;background:#111;border-radius:16px;padding:10px;overflow:hidden;width:100%;max-width:170px;min-width:0;display:flex;flex-direction:column}
+.poster-container{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#1a1a1a;border:1px solid #222;position:relative;margin:0 auto}
+.poster{width:100%;height:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;border-radius:12px;display:block;background:#1a1a1a;border:none;margin:0 auto}
+.details-poster{width:160px;height:160px;aspect-ratio:1/1;object-fit:cover;object-position:center;background:#1a1a1a;border-radius:18px;border:1px solid #222;display:block;margin:0 auto}
+.favorite-btn{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;z-index:5;cursor:pointer}
 .favorite-btn.active{color:#e50914}
 .movie-card h3{font-size:14px;font-weight:800;margin-top:8px;min-height:36px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .movie-card p{font-size:12px;color:#777;margin-top:4px}
@@ -98,13 +100,408 @@ body { -webkit-user-select: none; user-select: none; }
 @keyframes authPopAnim{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
 @keyframes authShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 @keyframes authFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* Movie / Anime / Series Description Expand/Collapse Styles */
+.details-desc-wrapper{margin-top:10px;text-align:center;width:100%}
+.details-desc-short{color:#aaa;margin:0;line-height:1.6;font-size:14px;word-break:break-word;white-space:pre-line;cursor:pointer;user-select:none;transition:color .2s;padding:2px 4px}
+.details-desc-short:hover{color:#fff}
+.details-desc-short:active{opacity:0.8}
+.details-desc-short:focus{outline:2px solid #00d2ff !important;border-radius:6px}
+.details-desc-full{color:#aaa;margin:0;line-height:1.6;font-size:14px;word-break:break-word;white-space:pre-line;padding:2px 4px}
+.desc-collapse-btn{background:#181818;border:1px solid #333;color:#00d2ff;padding:5px 16px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.4);user-select:none;margin-top:8px}
+.desc-collapse-btn:hover{border-color:#00d2ff;color:#00d2ff;background:#0d1a24}
+.desc-collapse-btn:active{transform:scale(.95);background:#222}
+.desc-collapse-btn:focus{outline:3px solid #00d2ff !important}
+
+/* ================= THEME SYSTEM (Dark / Light Mode) ================= */
+:root {
+  --bg-main: #000000;
+  --bg-card: #111111;
+  --bg-card-sub: #161616;
+  --bg-topbar: #000000;
+  --bg-bottomnav: #080808;
+  --bg-input: #151515;
+  --bg-btn-sec: #181818;
+  --border-color: #222222;
+  --border-input: #333333;
+  --text-main: #ffffff;
+  --text-sub: #888888;
+  --text-muted: #555555;
+  --primary: #e50914;
+  --accent: #00d2ff;
+  --topbar-border: #111111;
+  --card-shadow: rgba(0,0,0,0.7);
+}
+
+body.theme-light {
+  --bg-main: #f5f6f9;
+  --bg-card: #ffffff;
+  --bg-card-sub: #f0f2f5;
+  --bg-topbar: #ffffff;
+  --bg-bottomnav: #ffffff;
+  --bg-input: #f0f2f5;
+  --bg-btn-sec: #e8eaed;
+  --border-color: #e0e3e8;
+  --border-input: #d0d5dd;
+  --text-main: #111827;
+  --text-sub: #4b5563;
+  --text-muted: #9ca3af;
+  --primary: #e50914;
+  --accent: #0088cc;
+  --topbar-border: #e5e7eb;
+  --card-shadow: rgba(0,0,0,0.08);
+}
+
+body {
+  background: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.top-bar {
+  background: var(--bg-topbar) !important;
+  border-bottom: 1px solid var(--topbar-border) !important;
+  transition: background-color 0.25s ease;
+}
+
+.top-bar button {
+  color: var(--text-main) !important;
+}
+
+.bottom-nav {
+  background: var(--bg-bottomnav) !important;
+  border-top: 1px solid var(--border-color) !important;
+  transition: background-color 0.25s ease;
+}
+
+.bottom-nav button {
+  color: var(--text-muted) !important;
+}
+.bottom-nav button.active {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.movie-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-card h3 {
+  color: var(--text-main) !important;
+}
+
+.movie-card p {
+  color: var(--text-sub) !important;
+}
+
+.input, select.input {
+  background: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-input) !important;
+}
+
+.back-btn {
+  background: var(--bg-btn-sec) !important;
+  border: 1px solid var(--border-input) !important;
+  color: var(--text-main) !important;
+}
+
+.episode-btn {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.ep-order-btn {
+  background: var(--bg-btn-sec) !important;
+  border: 1px solid var(--border-input) !important;
+  color: var(--text-main) !important;
+}
+
+.details-poster {
+  background: var(--bg-card-sub) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.details-desc-short, .details-desc-full {
+  color: var(--text-sub) !important;
+}
+.details-desc-short:hover {
+  color: var(--text-main) !important;
+}
+
+/* ================= SETTINGS PAGE STYLES ================= */
+.settings-container {
+  padding: 14px 16px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 14px var(--card-shadow);
+}
+
+.settings-header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e50914, #b80610);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(229,9,20,0.35);
+}
+
+.settings-header-info h2 {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  color: var(--text-main);
+}
+
+.settings-header-info p {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-section-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 4px;
+}
+
+.settings-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px var(--card-shadow);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.15s ease;
+  min-height: 56px;
+  user-select: none;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row-clickable {
+  cursor: pointer;
+}
+.settings-row-clickable:hover {
+  background: rgba(125,125,125,0.06);
+}
+.settings-row-clickable:active {
+  background: rgba(125,125,125,0.12);
+}
+
+.settings-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-item-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg-card-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+}
+
+.settings-item-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-item-subtitle {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+
+.settings-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.settings-arrow {
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* iOS / M3 Style Toggle Switch */
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #333333;
+  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 28px;
+  border: 1px solid #444444;
+}
+
+.theme-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+input:checked + .theme-slider {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+input:checked + .theme-slider:before {
+  transform: translateX(22px);
+}
+
+/* Custom segmented control for Theme and Language */
+.segmented-control {
+  display: flex;
+  background: var(--bg-card-sub);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.segmented-btn {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.segmented-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(229,9,20,0.35);
+}
+
+.app-info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 20px 16px;
+  box-shadow: 0 4px 14px var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.app-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+.app-info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.app-info-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-sub);
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.app-info-value {
+  font-size: 14px;
+  color: var(--text-main);
+  line-height: 1.5;
+  flex: 1;
+}
 </style>
 <script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"}}</script>
 </head>
 <body>
 <div id="app">
   <header class="top-bar">
-    <button onclick="openSearch()" style="background:none;border:none;font-size:22px;cursor:pointer" title="بحث" aria-label="بحث">🔍</button>
+    <button onclick="openSettings()" id="settingsTopBtn" style="background:none;border:none;font-size:22px;cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+    <div style="font-size:18px;font-weight:900;letter-spacing:1px;display:flex;align-items:center"><span style="color:#e50914">BLACK</span>&nbsp;<span style="color:var(--text-main,#fff)">ANIME</span></div>
+    <button onclick="openSearch()" id="searchTopBtn" style="background:none;border:none;font-size:22px;cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center" title="بحث" aria-label="بحث">🔍</button>
   </header>
 
   <main id="main-content">
@@ -255,6 +652,7 @@ body { -webkit-user-select: none; user-select: none; }
           <button id="sendNotifBtn" onclick="sendTestNotificationFromModal()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer">🚀 إرسال الإشعار الآن</button>
           <button onclick="closeTestNotificationModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:14px">إلغاء</button>
         </div>
+        <div id="notifStatusFeedback" style="display:none;margin-top:10px"></div>
       </div>
     </div>
   </div>
@@ -262,7 +660,7 @@ body { -webkit-user-select: none; user-select: none; }
 
 <script type="module">
 import{initializeApp}from"firebase/app";
-import{getFirestore,collection,onSnapshot,addDoc,updateDoc,deleteDoc,doc,serverTimestamp,query,orderBy,limit}from"firebase/firestore";
+import{getFirestore,collection,onSnapshot,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,query,orderBy,limit}from"firebase/firestore";
 
 const firebaseConfig={
   apiKey:"AIzaSyB_9ZOotR4uZtYYn08OSIZXJczM-WC0MM8",
@@ -275,6 +673,73 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const colRef=collection(db,"movies");
+
+// ================= FCM Device Registration & Real-Time Sync =================
+window.registerDeviceToken = async function(token) {
+  if (!token || typeof token !== "string" || !token.trim()) return;
+  const t = token.trim();
+  try {
+    const tokenDoc = doc(db, "fcm_tokens", t);
+    await setDoc(tokenDoc, {
+      token: t,
+      platform: "android",
+      appVersion: "1.0",
+      deviceModel: navigator.userAgent || "Android Device",
+      subscribedTopics: ["all_users", "anime_updates"],
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    console.log("[FCM] Device token registered to Firestore successfully:", t);
+  } catch (err) {
+    console.warn("[FCM] Failed to sync token to Firestore:", err);
+  }
+};
+
+// Check if AndroidBridge already provided an initial FCM token
+setTimeout(() => {
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.getFcmToken === "function") {
+      const initToken = window.AndroidBridge.getFcmToken();
+      if (initToken) window.registerDeviceToken(initToken);
+    }
+  } catch (e) {}
+}, 1000);
+
+// Real-Time Notification Queue Listener for Active Devices
+const appSessionStartTime = Date.now();
+try {
+  const notifQueueQuery = query(collection(db, "notification_queue"), orderBy("createdAt", "desc"), limit(5));
+  onSnapshot(notifQueueQuery, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        const d = change.doc.data();
+        const notifId = change.doc.id;
+        const shownKey = "shown_notif_" + notifId;
+        if (!localStorage.getItem(shownKey)) {
+          const createdAtMillis = d.createdAt ? (d.createdAt.toMillis ? d.createdAt.toMillis() : (d.createdAt.seconds ? d.createdAt.seconds * 1000 : Date.now())) : Date.now();
+          if (createdAtMillis >= (appSessionStartTime - 15000)) {
+            localStorage.setItem(shownKey, "true");
+            if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
+              window.AndroidBridge.triggerCustomNotification(
+                d.title || "حلقة جديدة",
+                d.body || "",
+                d.page || "details",
+                d.firebaseId || "",
+                d.episode || "",
+                d.imageUrl || "",
+                d.action || "play",
+                d.contentTitle || ""
+              );
+            }
+          }
+        }
+      }
+    });
+  }, (err) => {
+    console.warn("[FCM Queue] Listener error:", err);
+  });
+} catch (e) {
+  console.warn("[FCM Queue] Failed to attach listener:", e);
+}
 
 // Android TV D-Pad Remote Control Navigation Listener
 window.addEventListener('keydown', (e) => {
@@ -329,6 +794,211 @@ window.favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 window.main = document.getElementById("main-content");
 window.tempVideoData = "";
 window.tempPosterData = "";
+
+/* ================= APP SETTINGS & CONFIGURATION ================= */
+// Easily configurable parameters from one single location
+window.APP_CONFIG = {
+  officialWebsiteUrl: "https://animeblack12.netlify.app",
+  appName: "BLACK ANIME",
+  developerName: "HAMZA",
+  appDescription: "منصة لمشاهدة واستكشاف الأفلام والمسلسلات والأنمي، مع عرض الملصقات والأوصاف والتفاصيل والحلقات، وتوفير خيارات المشاهدة حسب الإمكانات المتاحة في التطبيق.",
+  defaultVersion: "1.0"
+};
+
+// Supported Languages and Translations Dictionary
+window.APP_TRANSLATIONS = {
+  ar: {
+    dir: "rtl",
+    app_name: "BLACK ANIME",
+    home: "الرئيسية",
+    animation: "الأنميشن",
+    anime: "الأنمي",
+    favorites: "مفضلتي",
+    my_favorites: "مفضلتي ♥",
+    add: "إضافة",
+    search: "بحث",
+    search_placeholder: "ابحث...",
+    back: "← رجوع",
+    settings: "الإعدادات",
+    settings_subtitle: "تخصيص المظهر، اللغة، والإشعارات",
+    appearance: "المظهر",
+    theme_dark: "الوضع الداكن",
+    theme_light: "الوضع الفاتح",
+    dark_desc: "الخلفية السوداء والتصميم الأصلي",
+    light_desc: "خلفية فاتحة ونصوص وأزرار واضحة",
+    language: "اللغة",
+    lang_ar: "العربية",
+    lang_en: "English",
+    lang_fr: "Français",
+    official_website: "الموقع الرسمي",
+    official_website_sub: "زيارة الموقع الرسمي لمنصة BLACK ANIME",
+    share_app: "مشاركة التطبيق",
+    share_app_sub: "مشاركة ملف التثبيت APK أو الرابط عبر التطبيقات",
+    app_info: "معلومات التطبيق",
+    app_info_sub: "تفاصيل الإصدار والمطور وفكرة المنصة",
+    notifications: "الإشعارات",
+    notifications_sub: "تفعيل أو تعطيل استلام التنبيهات والأخبار",
+    notifications_note: "ملاحظة: يمكنك أيضًا إدارة أذونات النظام في إعدادات Android",
+    developer: "المطور",
+    version: "رقم الإصدار",
+    app_concept: "فكرة التطبيق",
+    enabled: "مفعل",
+    disabled: "معطل",
+    alert_invalid_url: "الرابط الخارجي غير متوفر أو غير صالح حالياً.",
+    notif_granted: "تم تفعيل الإشعارات بنجاح.",
+    notif_disabled_msg: "تم إيقاف الإشعارات في التطبيق.",
+    system_settings_hint: "لإدارة الصلاحية بالكامل، يمكنك مراجعة إعدادات الإشعارات في هاتفك."
+  },
+  en: {
+    dir: "ltr",
+    app_name: "BLACK ANIME",
+    home: "Home",
+    animation: "Animation",
+    anime: "Anime",
+    favorites: "Favorites",
+    my_favorites: "Favorites ♥",
+    add: "Add",
+    search: "Search",
+    search_placeholder: "Search...",
+    back: "← Back",
+    settings: "Settings",
+    settings_subtitle: "Customize appearance, language, and notifications",
+    appearance: "Appearance",
+    theme_dark: "Dark Mode",
+    theme_light: "Light Mode",
+    dark_desc: "Black background and original design",
+    light_desc: "Light background with crisp contrast",
+    language: "Language",
+    lang_ar: "العربية",
+    lang_en: "English",
+    lang_fr: "Français",
+    official_website: "Official Website",
+    official_website_sub: "Visit BLACK ANIME official platform",
+    share_app: "Share App",
+    share_app_sub: "Share APK installer or link via installed apps",
+    app_info: "App Info",
+    app_info_sub: "Version, developer, and platform details",
+    notifications: "Notifications",
+    notifications_sub: "Enable or disable updates and alerts",
+    notifications_note: "Note: System notification permissions can also be configured in Android Settings",
+    developer: "Developer",
+    version: "App Version",
+    app_concept: "App Concept",
+    enabled: "Enabled",
+    disabled: "Disabled",
+    alert_invalid_url: "External link is not set or invalid at this time.",
+    notif_granted: "Notifications enabled successfully.",
+    notif_disabled_msg: "Notifications turned off.",
+    system_settings_hint: "You can also manage system permissions via Android App Settings."
+  },
+  fr: {
+    dir: "ltr",
+    app_name: "BLACK ANIME",
+    home: "Accueil",
+    animation: "Animation",
+    anime: "Animé",
+    favorites: "Favoris",
+    my_favorites: "Mes Favoris ♥",
+    add: "Ajouter",
+    search: "Recherche",
+    search_placeholder: "Rechercher...",
+    back: "← Retour",
+    settings: "Paramètres",
+    settings_subtitle: "Personnaliser l'apparence, la langue et les notifications",
+    appearance: "Apparence",
+    theme_dark: "Mode Sombre",
+    theme_light: "Mode Clair",
+    dark_desc: "Fond noir et design original",
+    light_desc: "Fond clair avec contraste net",
+    language: "Langue",
+    lang_ar: "العربية",
+    lang_en: "English",
+    lang_fr: "Français",
+    official_website: "Site Officiel",
+    official_website_sub: "Visiter la plateforme officielle BLACK ANIME",
+    share_app: "Partager l'application",
+    share_app_sub: "Partager le fichier APK ou le lien de téléchargement",
+    app_info: "Infos de l'application",
+    app_info_sub: "Version, développeur et détails de la plateforme",
+    notifications: "Notifications",
+    notifications_sub: "Activer ou désactiver les alertes et nouveautés",
+    notifications_note: "Note: Les autorisations système peuvent également être gérées dans les paramètres Android",
+    developer: "Développeur",
+    version: "Version",
+    app_concept: "Concept de l'application",
+    enabled: "Activé",
+    disabled: "Désactivé",
+    alert_invalid_url: "Le lien externe n'est pas disponible ou est invalide.",
+    notif_granted: "Notifications activées avec succès.",
+    notif_disabled_msg: "Notifications désactivées.",
+    system_settings_hint: "Vous pouvez également gérer les autorisations dans les paramètres Android."
+  }
+};
+
+// Current App Preferences
+window.currentTheme = localStorage.getItem("app_theme") || "dark";
+window.currentLanguage = localStorage.getItem("app_language") || "ar";
+window.appNotificationsEnabled = localStorage.getItem("app_notifications_enabled") !== "false";
+
+// Helper function to get translated text
+window.t = function(key) {
+  const lang = window.currentLanguage || "ar";
+  const dict = window.APP_TRANSLATIONS[lang] || window.APP_TRANSLATIONS.ar;
+  return dict[key] || window.APP_TRANSLATIONS.ar[key] || key;
+};
+
+// Apply Theme
+window.applyTheme = function(theme) {
+  window.currentTheme = (theme === "light") ? "light" : "dark";
+  localStorage.setItem("app_theme", window.currentTheme);
+  if (window.currentTheme === "light") {
+    document.body.classList.add("theme-light");
+  } else {
+    document.body.classList.remove("theme-light");
+  }
+};
+
+// Apply Language & Direction
+window.applyLanguage = function(lang) {
+  if (!["ar", "en", "fr"].includes(lang)) lang = "ar";
+  window.currentLanguage = lang;
+  localStorage.setItem("app_language", lang);
+
+  const dict = window.APP_TRANSLATIONS[lang];
+  const isRtl = (dict.dir === "rtl");
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = dict.dir;
+  document.body.dir = dict.dir;
+
+  // Update persistent bottom navigation labels
+  const navHome = document.querySelector("#nav-home span");
+  if (navHome) navHome.innerText = dict.home;
+  const navAnim = document.querySelector("#nav-animation span");
+  if (navAnim) navAnim.innerText = dict.animation;
+  const navAnime = document.querySelector("#nav-anime span");
+  if (navAnime) navAnime.innerText = dict.anime;
+  const navAdd = document.querySelector("#nav-add span");
+  if (navAdd) navAdd.innerText = dict.add;
+  const navFav = document.querySelector("#nav-favorites span");
+  if (navFav) navFav.innerText = dict.favorites;
+
+  // Update top-bar tooltips & aria labels
+  const settingsBtn = document.getElementById("settingsTopBtn");
+  if (settingsBtn) {
+    settingsBtn.title = dict.settings;
+    settingsBtn.setAttribute("aria-label", dict.settings);
+  }
+  const searchBtn = document.getElementById("searchTopBtn");
+  if (searchBtn) {
+    searchBtn.title = dict.search;
+    searchBtn.setAttribute("aria-label", dict.search);
+  }
+};
+
+// Initialize Theme & Language on launch
+window.applyTheme(window.currentTheme);
+window.applyLanguage(window.currentLanguage);
 
 // ================= FCM & Notification Action Handler & Deep Linking =================
 window._pendingFcmNotification = null;
@@ -561,7 +1231,11 @@ window.handleNotifTargetChange = function(fid) {
   }
 };
 
-window.sendTestNotificationFromModal = function() {
+window.sendTestNotificationFromModal = async function() {
+  if (window.currentUserRole !== "ADMIN") {
+    alert("عذرًا، إرسال الإشعارات مخصص لحساب الإدارة فقط");
+    return;
+  }
   const title = (document.getElementById("notifTitleInput")?.value || "حلقة جديدة").trim();
   const message = (document.getElementById("notifMsgInput")?.value || "تم إصدار الحلقة الجديدة، اضغط للمشاهدة").trim();
   const fid = (document.getElementById("notifFidInput")?.value || "").trim();
@@ -572,21 +1246,84 @@ window.sendTestNotificationFromModal = function() {
   let targetItem = fid ? (window.allContent || []).find(x => x.firebaseId === fid) : null;
   let contentTitle = targetItem ? (targetItem.title || "") : "";
 
-  if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
-    window.AndroidBridge.triggerCustomNotification(
-      title,
-      message,
-      "details",
-      fid,
-      episode,
-      image,
-      action,
-      contentTitle
-    );
-    window.closeTestNotificationModal();
-    alert("✅ تم إرسال الإشعار بنجاح إلى شريط الإشعارات! يمكنك سحب شريط الإشعارات والضغط عليه لاختبار الانتقال المباشر.");
-  } else {
-    alert("ميزة إرسال الإشعارات تعمل داخل تطبيق الأندرويد الأصلي");
+  const sendBtn = document.getElementById("sendNotifBtn");
+  const statusEl = document.getElementById("notifStatusFeedback");
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ جاري الإرسال إلى خوادم Firebase...";
+  }
+  if (statusEl) {
+    statusEl.style.display = "block";
+    statusEl.innerHTML = `<span style="color:#00d2ff">⏳ جاري تسجيل الإشعار في خوادم Firebase (الموضوع: all_users)...</span>`;
+  }
+
+  try {
+    // 1. Add to Firestore Notification Queue for all users
+    const queueDoc = await addDoc(collection(db, "notification_queue"), {
+      idempotencyKey: "manual_" + Date.now(),
+      topic: "all_users",
+      title: title,
+      body: message,
+      imageUrl: image,
+      firebaseId: fid,
+      contentTitle: contentTitle,
+      episode: episode,
+      page: "details",
+      action: action,
+      status: "pending",
+      createdAt: serverTimestamp(),
+      type: "manual_broadcast",
+      createdByRole: "ADMIN"
+    });
+
+    console.log("[FCM] Manual broadcast queued successfully with ID:", queueDoc.id);
+
+    // 2. Trigger instant local preview on admin device
+    if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
+      window.AndroidBridge.triggerCustomNotification(
+        title,
+        message,
+        "details",
+        fid,
+        episode,
+        image,
+        action,
+        contentTitle
+      );
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = `
+        <div style="background:#1a2a1a;border:1px solid #28a745;padding:10px;border-radius:8px;color:#a3e635;font-size:13px;line-height:1.6">
+          <strong>✅ تم إرسال الإشعار بنجاح إلى خوادم Firebase!</strong><br>
+          • الموضوع المستهدف: <code>all_users</code> (كافة الأجهزة المشتركة)<br>
+          • معرف المعاملة: <code>${queueDoc.id}</code><br>
+          • تم إظهار معاينة فورية في هاتفك الحالي.
+        </div>
+      `;
+    }
+
+    setTimeout(() => {
+      window.closeTestNotificationModal();
+      alert(`✅ تم إرسال الإشعار الجماعي بنجاح!\n• المستلمون: جميع أجهزة المستخدمين المشتركة (الموضوع all_users)\n• معرف المعاملة في Firebase: ${queueDoc.id}`);
+    }, 1200);
+
+  } catch (error) {
+    console.error("[FCM] Error queuing notification:", error);
+    if (statusEl) {
+      statusEl.innerHTML = `
+        <div style="background:#2a1a1a;border:1px solid #dc3545;padding:10px;border-radius:8px;color:#f87171;font-size:13px">
+          <strong>❌ فشل الإرسال إلى Firebase:</strong><br>
+          ${error.message || error}
+        </div>
+      `;
+    }
+    alert("❌ تعذر إرسال الإشعار الجماعي: " + (error.message || error));
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.innerText = "🚀 إرسال الإشعار الآن";
+    }
   }
 };
 
@@ -904,7 +1641,7 @@ window.createCard=(item)=>{
   let del=(window.currentUserRole==="ADMIN"&&window.deleteMode)?`<button tabindex="0" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#e50914;color:#fff;z-index:3" onclick="event.stopPropagation();askDeleteMovie('${item.firebaseId}')">✕</button>`:"";
   let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
   let categoryLabel = item.category || (isAnimation ? "أنميشن" : "مسلسل");
-  return`<div class="movie-card" tabindex="0"><button tabindex="0" class="favorite-btn ${fav?"active":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}')">♥</button>${del}<div onclick="${click}"><img class="poster" src="${item.poster}" loading="lazy" decoding="async"><h3>${item.title}</h3><p>${item.year} • ${categoryLabel}</p></div></div>`;
+  return`<div class="movie-card" tabindex="0"><button tabindex="0" class="favorite-btn ${fav?"active":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}')">♥</button>${del}<div onclick="${click}"><div class="poster-container"><img class="poster" src="${item.poster}" loading="lazy" decoding="async"></div><h3>${item.title}</h3><p>${item.year} • ${categoryLabel}</p></div></div>`;
 };
 window.getOfficialAnimeList = function() {
   let list = window.allContent.filter(x => {
@@ -965,8 +1702,8 @@ window.renderCategory=(type)=>{
     if (isAnimation) return x.type === "animation" || x.type === "arabic" || x.type === "sports";
     return x.type === "anime" || x.type === "foreign" || x.type === "news" || x.type === "entertainment";
   });
-  let catTitle = isAnimation ? "الأنميشن" : "الأنمي";
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${catTitle}</h1></div><div class="movies-grid">${items.map(createCard).join("")}</div>`;
+  let catTitle = isAnimation ? window.t("animation") : window.t("anime");
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${window.t("back")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${catTitle}</h1></div><div class="movies-grid">${items.map(createCard).join("")}</div>`;
   setActiveNav(isAnimation ? "animation" : "anime");
 };
 window.navigateTo=(next,renderFn)=>{
@@ -1054,10 +1791,54 @@ window.toggleEpisodesOrder = function(fid) {
   window.renderEpisodesList(fid);
 };
 
+/* ================= Movie / Anime / Series Description Expand/Collapse ================= */
+window._detailsDescExpanded = false;
+
+window.escapeDescHtml = function(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+};
+
+window.renderDetailsDescriptionHtml = function(desc, isExpanded) {
+  if (desc === undefined || desc === null) return "";
+  const fullDesc = String(desc).trim();
+  if (!fullDesc) return "";
+
+  // 5. If description <= 180 characters, display full text without "..." and without expand/collapse button
+  if (fullDesc.length <= 180) {
+    return `<div id="detailsDescWrapper" class="details-desc-wrapper" dir="auto"><p id="detailsDescText" class="details-desc-full" dir="auto">${window.escapeDescHtml(fullDesc)}</p></div>`;
+  }
+
+  // If description > 180 characters:
+  if (!isExpanded) {
+    // 1 & 2. Show first 180 characters + "...", and make short description clickable
+    const shortDesc = fullDesc.slice(0, 180).trimEnd() + "...";
+    return `<div id="detailsDescWrapper" class="details-desc-wrapper" dir="auto"><p id="detailsDescText" class="details-desc-short" tabindex="0" role="button" aria-expanded="false" title="اضغط لعرض الوصف بالكامل" onclick="window.toggleDetailsDescription(true)" onkeydown="if(event.key==='Enter'||event.key===' ')window.toggleDetailsDescription(true)" dir="auto">${window.escapeDescHtml(shortDesc)}</p></div>`;
+  } else {
+    // 3 & 4. When expanded, display full description and show «إخفاء ▲» below the text
+    return `<div id="detailsDescWrapper" class="details-desc-wrapper" dir="auto"><p id="detailsDescText" class="details-desc-full" dir="auto">${window.escapeDescHtml(fullDesc)}</p><div style="margin-top:8px;text-align:center"><button type="button" id="detailsDescCollapseBtn" class="desc-collapse-btn" onclick="window.toggleDetailsDescription(false)" title="إخفاء الوصف" aria-label="إخفاء الوصف" dir="auto">«إخفاء ▲»</button></div></div>`;
+  }
+};
+
+window.toggleDetailsDescription = function(expand) {
+  const fid = window._lastDetailsFid;
+  const item = fid ? getItemByFirebaseId(fid) : null;
+  if (!item) return;
+  const wrapper = document.getElementById("detailsDescWrapper");
+  if (!wrapper) return;
+  const desc = item.description || "";
+  window._detailsDescExpanded = expand;
+  wrapper.outerHTML = window.renderDetailsDescriptionHtml(desc, expand);
+};
+
 window.openDetails=(fid)=>{
   let item=getItemByFirebaseId(fid);
   if(!item)return;
   window._lastDetailsFid = fid;
+  window._detailsDescExpanded = false;
   window.episodesSortOrder = "asc";
   navigateTo("details",()=>{
     let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
@@ -1071,7 +1852,7 @@ window.openDetails=(fid)=>{
       </button>
     ` : "";
 
-    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">← رجوع</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p><p style="color:#aaa;margin-top:10px">${item.description}</p></div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${window.t("back")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="details-poster" src="${item.poster}" style="width:160px;height:160px;aspect-ratio:1/1;object-fit:cover;object-position:center;background:#1a1a1a;border-radius:18px;border:1px solid #222;display:block;margin:0 auto"><h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDetailsDescriptionHtml(item.description, false)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
 
     window.renderEpisodesList(item.firebaseId);
   });
@@ -1147,7 +1928,7 @@ window.watchEpisode=(fid,idx)=>{
 };
 window.openSearch=()=>{
   navigateTo("search",()=>{
-    main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="ابحث..." oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
+    main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${window.t("back")}</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="${window.t("search_placeholder")}" oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
   });
 };
 window.performSearch=()=>{
@@ -1155,7 +1936,7 @@ window.performSearch=()=>{
   document.getElementById("searchResults").innerHTML=window.allContent.filter(x=>(x.title&&x.title.toLowerCase().includes(qq))||(x.category&&x.category.toLowerCase().includes(qq))).map(createCard).join("");
 };
 window.renderFavorites=()=>{
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">مفضلتي ♥</h1></div><div class="movies-grid">${window.allContent.filter(x=>favorites.includes(x.id)).map(createCard).join("")}</div>`;
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${window.t("back")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${window.t("my_favorites")}</h1></div><div class="movies-grid">${window.allContent.filter(x=>favorites.includes(x.id)).map(createCard).join("")}</div>`;
   setActiveNav("favorites");
 };
 const CATEGORY_KEYS = ["animation", "anime", "arabic", "foreign"];
@@ -1164,6 +1945,7 @@ window.showPage=(p)=>{
     if(p==="home")renderHome();
     else if(CATEGORY_KEYS.includes(p))renderCategory(p);
     else if(p==="favorites")renderFavorites();
+    else if(p==="settings")renderSettingsPage();
     return;
   }
   historyStack.push(currentPage);
@@ -1172,6 +1954,7 @@ window.showPage=(p)=>{
   if(p==="home")renderHome();
   else if(CATEGORY_KEYS.includes(p))renderCategory(p);
   else if(p==="favorites")renderFavorites();
+  else if(p==="settings")renderSettingsPage();
   window.scrollTo(0,0);
 };
 window.renderCurrentPage=()=>{
@@ -1179,6 +1962,8 @@ window.renderCurrentPage=()=>{
   if(currentPage==="home")renderHome();
   else if(CATEGORY_KEYS.includes(currentPage))renderCategory(currentPage);
   else if(currentPage==="favorites")renderFavorites();
+  else if(currentPage==="settings")renderSettingsPage();
+  else if(currentPage==="app_info")renderAppInfoPage();
   else if(currentPage==="add"){
     if(window.currentUserRole!=="ADMIN"){historyStack=[];showPage('home');}
     else renderAddPage(true);
@@ -1193,6 +1978,8 @@ window.goBack=()=>{
   if(prev==="home")renderHome();
   else if(CATEGORY_KEYS.includes(prev))renderCategory(prev);
   else if(prev==="favorites")renderFavorites();
+  else if(prev==="settings")renderSettingsPage();
+  else if(prev==="app_info")renderAppInfoPage();
   else if(prev==="add" || prev==="select" || prev==="addep"){
     if(window.currentUserRole!=="ADMIN"){
       showPage('home');
@@ -1223,13 +2010,13 @@ window.openDetailsBack=()=>{
     </button>
   ` : "";
 
-  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">← رجوع</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p><p style="color:#aaa;margin-top:10px">${item.description}</p></div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${window.t("back")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="details-poster" src="${item.poster}" style="width:160px;height:160px;aspect-ratio:1/1;object-fit:cover;object-position:center;background:#1a1a1a;border-radius:18px;border:1px solid #222;display:block;margin:0 auto"><h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDetailsDescriptionHtml(item.description, false)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
 
   window.renderEpisodesList(item.firebaseId);
 };
 window.openSearchBack=()=>{
   currentPage="search";
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="ابحث..." oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${window.t("back")}</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="${window.t("search_placeholder")}" oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
 };
 window.fillSamplePixeldrain=()=>{
   let v=document.getElementById("addVideo");if(v)v.value="https://pixeldrain.com/api/file/cnR9Z51";
@@ -1243,6 +2030,280 @@ window.testPlayPixeldrain=()=>{
     window.AndroidBridge.playStream(url,"تجربة Pixeldrain");
   }else{
     alert("رابط التجربة: "+url);
+  }
+};
+
+/* ================= SETTINGS & APP INFO PAGES ================= */
+window.openSettings = function() {
+  navigateTo("settings", () => {
+    window.renderSettingsPage();
+  });
+};
+
+window.openAppInfo = function() {
+  navigateTo("app_info", () => {
+    window.renderAppInfoPage();
+  });
+};
+
+window.renderSettingsPage = function() {
+  currentPage = "settings";
+  const lang = window.currentLanguage || "ar";
+  const theme = window.currentTheme || "dark";
+  const notifEnabled = (window.appNotificationsEnabled !== false);
+  const isDark = (theme === "dark");
+
+  const html = `
+    <div class="page-header" style="display:flex;align-items:center;padding:10px 14px 4px 14px;margin-top:55px">
+      <button class="back-btn" style="margin:0" onclick="goBack()">${window.t("back")}</button>
+      <h2 style="margin:0 14px;font-size:19px;font-weight:900;color:var(--text-main)">${window.t("settings")}</h2>
+    </div>
+
+    <div class="settings-container">
+      <!-- App Brand Card -->
+      <div class="settings-header-card">
+        <div class="settings-header-icon">⚙️</div>
+        <div class="settings-header-info">
+          <h2>${window.APP_CONFIG.appName}</h2>
+          <p>${window.t("settings_subtitle")}</p>
+        </div>
+      </div>
+
+      <!-- 1. Appearance / Theme Section -->
+      <div class="settings-section">
+        <div class="settings-section-title">${window.t("appearance")}</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">🎨</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("appearance")}</span>
+                <span class="settings-item-subtitle">${isDark ? window.t("dark_desc") : window.t("light_desc")}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <div class="segmented-control">
+                <button type="button" class="segmented-btn ${isDark ? 'active' : ''}" onclick="window.onThemeChange('dark')">🌙 ${window.t("theme_dark")}</button>
+                <button type="button" class="segmented-btn ${!isDark ? 'active' : ''}" onclick="window.onThemeChange('light')">☀️ ${window.t("theme_light")}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Language Section -->
+      <div class="settings-section">
+        <div class="settings-section-title">${window.t("language")}</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">🌐</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("language")}</span>
+                <span class="settings-item-subtitle">${lang === 'ar' ? 'العربية' : lang === 'en' ? 'English' : 'Français'}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <div class="segmented-control">
+                <button type="button" class="segmented-btn ${lang === 'ar' ? 'active' : ''}" onclick="window.onLanguageChange('ar')">العربية</button>
+                <button type="button" class="segmented-btn ${lang === 'en' ? 'active' : ''}" onclick="window.onLanguageChange('en')">English</button>
+                <button type="button" class="segmented-btn ${lang === 'fr' ? 'active' : ''}" onclick="window.onLanguageChange('fr')">Français</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Notifications Section -->
+      <div class="settings-section">
+        <div class="settings-section-title">${window.t("notifications")}</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">🔔</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("notifications")}</span>
+                <span class="settings-item-subtitle">${notifEnabled ? window.t("enabled") : window.t("disabled")} - ${window.t("notifications_sub")}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <label class="theme-switch" title="${window.t("notifications")}">
+                <input type="checkbox" id="notifSettingToggle" ${notifEnabled ? 'checked' : ''} onchange="window.onNotificationToggle(this.checked)">
+                <span class="theme-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);padding:2px 8px;line-height:1.4">${window.t("notifications_note")}</p>
+      </div>
+
+      <!-- 4. Official Website & Share & App Info Section -->
+      <div class="settings-section">
+        <div class="settings-section-title">${window.APP_CONFIG.appName}</div>
+        <div class="settings-group">
+          <!-- Official Website -->
+          <div class="settings-row settings-row-clickable" onclick="window.openOfficialWebsite()">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">🌐</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("official_website")}</span>
+                <span class="settings-item-subtitle">${window.t("official_website_sub")}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <span class="settings-arrow">❯</span>
+            </div>
+          </div>
+
+          <!-- Share App -->
+          <div class="settings-row settings-row-clickable" onclick="window.shareAppAction()">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">🔗</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("share_app")}</span>
+                <span class="settings-item-subtitle">${window.t("share_app_sub")}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <span class="settings-arrow">❯</span>
+            </div>
+          </div>
+
+          <!-- App Info -->
+          <div class="settings-row settings-row-clickable" onclick="window.openAppInfo()">
+            <div class="settings-row-left">
+              <div class="settings-item-icon">ℹ️</div>
+              <div class="settings-item-text">
+                <span class="settings-item-title">${window.t("app_info")}</span>
+                <span class="settings-item-subtitle">${window.t("app_info_sub")}</span>
+              </div>
+            </div>
+            <div class="settings-row-right">
+              <span class="settings-arrow">❯</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  main.innerHTML = html;
+};
+
+window.renderAppInfoPage = function() {
+  currentPage = "app_info";
+  let realVersion = window.APP_CONFIG.defaultVersion;
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.getAppVersionName === "function") {
+      const v = window.AndroidBridge.getAppVersionName();
+      if (v) realVersion = v;
+    }
+  } catch (e) {}
+
+  const html = `
+    <div class="page-header" style="display:flex;align-items:center;padding:10px 14px 4px 14px;margin-top:55px">
+      <button class="back-btn" style="margin:0" onclick="goBack()">${window.t("back")}</button>
+      <h2 style="margin:0 14px;font-size:19px;font-weight:900;color:var(--text-main)">${window.t("app_info")}</h2>
+    </div>
+
+    <div class="settings-container">
+      <div class="settings-header-card" style="flex-direction:column;text-align:center;padding:26px 18px">
+        <div class="settings-header-icon" style="width:72px;height:72px;font-size:36px;border-radius:20px;margin-bottom:6px">🎬</div>
+        <h2 style="font-size:22px;margin-bottom:4px">${window.APP_CONFIG.appName}</h2>
+        <p style="font-size:13px;color:var(--primary);font-weight:bold">v${realVersion}</p>
+      </div>
+
+      <div class="app-info-card">
+        <div class="app-info-row">
+          <span class="app-info-label">${window.t("app_name")}:</span>
+          <span class="app-info-value" style="font-weight:bold">${window.APP_CONFIG.appName}</span>
+        </div>
+
+        <div class="app-info-row">
+          <span class="app-info-label">${window.t("developer")}:</span>
+          <span class="app-info-value" style="font-weight:bold;color:var(--primary)">${window.APP_CONFIG.developerName}</span>
+        </div>
+
+        <div class="app-info-row">
+          <span class="app-info-label">${window.t("version")}:</span>
+          <span class="app-info-value" style="font-weight:bold">${realVersion}</span>
+        </div>
+
+        <div class="app-info-row">
+          <span class="app-info-label">${window.t("app_concept")}:</span>
+          <span class="app-info-value">${window.APP_CONFIG.appDescription}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  main.innerHTML = html;
+};
+
+// Handlers for Setting Changes
+window.onThemeChange = function(newTheme) {
+  window.applyTheme(newTheme);
+  window.renderSettingsPage();
+};
+
+window.onLanguageChange = function(newLang) {
+  window.applyLanguage(newLang);
+  window.renderSettingsPage();
+};
+
+window.onNotificationToggle = function(enabled) {
+  window.appNotificationsEnabled = enabled;
+  localStorage.setItem("app_notifications_enabled", enabled ? "true" : "false");
+
+  if (window.AndroidBridge && typeof window.AndroidBridge.setNotificationsEnabled === "function") {
+    try {
+      window.AndroidBridge.setNotificationsEnabled(enabled);
+    } catch (e) {
+      console.warn("setNotificationsEnabled error:", e);
+    }
+  }
+
+  if (enabled) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.requestNotificationPermission === "function") {
+      window.AndroidBridge.requestNotificationPermission();
+    }
+  }
+
+  // Refresh view to update status labels
+  window.renderSettingsPage();
+};
+
+window.openOfficialWebsite = function() {
+  const url = (window.APP_CONFIG.officialWebsiteUrl || "").trim();
+  if (!url || (!url.startsWith("http://") && !url.startsWith("https://"))) {
+    alert(window.t("alert_invalid_url"));
+    return;
+  }
+  window.openExternalLink(url);
+};
+
+window.shareAppAction = function() {
+  const officialUrl = (window.APP_CONFIG.officialWebsiteUrl || "").trim();
+  if (window.AndroidBridge && typeof window.AndroidBridge.shareAppApkOrLink === "function") {
+    try {
+      window.AndroidBridge.shareAppApkOrLink(officialUrl);
+      return;
+    } catch (e) {
+      console.warn("shareAppApkOrLink bridge call failed:", e);
+    }
+  }
+
+  // Web fallback if running in browser
+  if (navigator.share) {
+    navigator.share({
+      title: window.APP_CONFIG.appName,
+      text: `${window.APP_CONFIG.appName} - ${window.APP_CONFIG.appDescription}`,
+      url: officialUrl
+    }).catch(() => {});
+  } else if (officialUrl) {
+    prompt("رابط التطبيق للمشاركة:", officialUrl);
+  } else {
+    alert("ملف التثبيت ورابط المشاركة غير متوفرين حالياً.");
   }
 };
 window.renderAddPage=(isBack=false)=>{
@@ -1299,7 +2360,7 @@ window.renderAddEpisodeForm=(fid)=>{
       </div>
     </div>
   ` : "";
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:15px;text-align:center"><img src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><h2>${item.title}</h2></div>${epListHtml}<div style="padding:12px;display:flex;flex-direction:column;gap:10px;background:#111;margin:8px;border-radius:10px;border:1px solid #222"><h3 style="font-size:15px;margin-bottom:2px">➕ إضافة حلقة / بث جديد</h3><input id="epTitle" class="input" placeholder="اسم الحلقة أو البث"><input id="epVideoLink" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="document.getElementById('epVideoLink').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تعبئة رابط Pixeldrain التجريبي (cnR9Z51)</button></div><input id="epAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('epVideoFile').click()">🎬 اختر فيديو<input type="file" id="epVideoFile" accept="video/*" hidden onchange="handleEpVideoFile(this.files[0])"><div id="epVideoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><button onclick="addEpisode('${item.firebaseId}')" style="background:#fff;color:#000;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer">✅ إضافة الحلقة</button></div>`;
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:15px;text-align:center"><img class="details-poster" src="${item.poster}" style="width:160px;height:160px;aspect-ratio:1/1;object-fit:cover;object-position:center;background:#1a1a1a;border-radius:18px;border:1px solid #222;display:block;margin:0 auto"><h2>${item.title}</h2></div>${epListHtml}<div style="padding:12px;display:flex;flex-direction:column;gap:10px;background:#111;margin:8px;border-radius:10px;border:1px solid #222"><h3 style="font-size:15px;margin-bottom:2px">➕ إضافة حلقة / بث جديد</h3><input id="epTitle" class="input" placeholder="اسم الحلقة أو البث"><input id="epVideoLink" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="document.getElementById('epVideoLink').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تعبئة رابط Pixeldrain التجريبي (cnR9Z51)</button></div><input id="epAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('epVideoFile').click()">🎬 اختر فيديو<input type="file" id="epVideoFile" accept="video/*" hidden onchange="handleEpVideoFile(this.files[0])"><div id="epVideoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><button onclick="addEpisode('${item.firebaseId}')" style="background:#fff;color:#000;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer">✅ إضافة الحلقة</button></div>`;
 };
 window.handleEpVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("epVideoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
 window.addEpisode=async(fid)=>{
@@ -1317,11 +2378,87 @@ window.addEpisode=async(fid)=>{
     return;
   }
   let item=getItemByFirebaseId(fid);
+  if(!item){
+    alert("لم يتم العثور على العمل المطلوب");
+    return;
+  }
   let baseEpisodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  let newEpIndex = baseEpisodes.length;
   let ne=[...baseEpisodes,{title:t,video:l,altUrl:alt}];
-  await updateDoc(doc(db,"movies",fid),{episodes:ne});
-  item.episodes = ne;
-  window.tempVideoData="";alert("✅ تمت إضافة الحلقة بنجاح");historyStack=[];openDetails(fid);
+
+  // 1. Save Episode to Firebase Firestore First
+  try {
+    await updateDoc(doc(db,"movies",fid),{episodes:ne});
+    item.episodes = ne;
+    window.tempVideoData="";
+  } catch(e) {
+    alert("❌ تعذر حفظ الحلقة في قاعدة البيانات: " + e.message);
+    return;
+  }
+
+  // 2. Smart Automatic Notification Preparation
+  const episodeNumberStr = String(newEpIndex + 1);
+  const animeTitle = item.title || "BLACK ANIME";
+  let posterUrl = item.poster || "";
+  if (posterUrl && !posterUrl.startsWith("http://") && !posterUrl.startsWith("https://")) {
+    posterUrl = "";
+  }
+
+  const notifTitle = "تمت إضافة حلقة جديدة!";
+  let notifBody = "";
+  if (t.includes("حلقة") || t.includes("الحلقة") || t.toLowerCase().includes("episode")) {
+    notifBody = `تمت إضافة ${t} من أنمي ${animeTitle}`;
+  } else {
+    notifBody = `تمت إضافة الحلقة ${episodeNumberStr} - ${t} من أنمي ${animeTitle}`;
+  }
+
+  const idempotencyKey = "ep_" + fid + "_" + newEpIndex;
+  let notifStatusMsg = "";
+
+  // 3. Queue Notification in Firestore for all users
+  try {
+    const queueDoc = await addDoc(collection(db, "notification_queue"), {
+      idempotencyKey: idempotencyKey,
+      topic: "all_users",
+      title: notifTitle,
+      body: notifBody,
+      imageUrl: posterUrl,
+      firebaseId: fid,
+      contentTitle: animeTitle,
+      episode: episodeNumberStr,
+      episodeIndex: String(newEpIndex),
+      episodeTitle: t,
+      page: "details",
+      action: "play",
+      status: "pending",
+      createdAt: serverTimestamp(),
+      type: "automatic_episode",
+      createdByRole: "ADMIN"
+    });
+    console.log("[FCM] Queued automatic episode notification:", queueDoc.id);
+    notifStatusMsg = `\n\n🔔 إشعار تلقائي لجميع الهواتف المشتركة:\n• العنوان: ${notifTitle}\n• المحتوى: ${notifBody}\n• المعرف في Firebase: ${queueDoc.id}`;
+  } catch (err) {
+    console.warn("[FCM] Failed to queue automatic notification:", err);
+    notifStatusMsg = `\n\n⚠️ تم حفظ الحلقة بنجاح، ولكن تعذر تسجيل الإشعار التلقائي (${err.message}). يمكنك إرساله من لوحة الإدارة.`;
+  }
+
+  // 4. Trigger local notification preview on admin device
+  if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
+    window.AndroidBridge.triggerCustomNotification(
+      notifTitle,
+      notifBody,
+      "details",
+      fid,
+      episodeNumberStr,
+      posterUrl,
+      "play",
+      animeTitle
+    );
+  }
+
+  alert(`✅ تمت إضافة الحلقة بنجاح!${notifStatusMsg}`);
+  historyStack=[];
+  openDetails(fid);
 };
 window.deleteEpisode=async(fid,idx)=>{
   if(window.currentUserRole!=="ADMIN"){showPage('home');return;}

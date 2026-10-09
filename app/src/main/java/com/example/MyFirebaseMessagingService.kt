@@ -27,6 +27,28 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         const val CHANNEL_NAME = "إشعارات BLACK ANIME"
         const val PREFS_NAME = "black_anime_fcm_prefs"
         const val KEY_FCM_TOKEN = "fcm_token"
+        const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+
+        fun areNotificationsEnabled(context: Context): Boolean {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            return prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
+        }
+
+        fun setNotificationsEnabled(context: Context, enabled: Boolean) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
+            try {
+                if (enabled) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("all_users")
+                    FirebaseMessaging.getInstance().subscribeToTopic("anime_updates")
+                } else {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("all_users")
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_updates")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Topic subscribe/unsubscribe error: ${e.message}")
+            }
+        }
 
         fun getSavedToken(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -173,6 +195,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         Log.d(TAG, "Message received from: ${remoteMessage.from}")
 
+        if (!areNotificationsEnabled(applicationContext)) {
+            Log.d(TAG, "Notifications are disabled by user preference in app settings. Skipping display.")
+            return
+        }
+
         // 1. Extract Title & Body
         val title = remoteMessage.notification?.title
             ?: remoteMessage.data["title"]
@@ -228,6 +255,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val imageUrl = remoteMessage.notification?.imageUrl?.toString()
             ?: remoteMessage.data["image"]
             ?: remoteMessage.data["image_url"]
+            ?: remoteMessage.data["imageUrl"]
             ?: remoteMessage.data["poster"]
             ?: remoteMessage.data["fcm_image"]
 
